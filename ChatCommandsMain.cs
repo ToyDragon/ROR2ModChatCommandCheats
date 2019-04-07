@@ -85,7 +85,6 @@ namespace Frogtown
     {
         static void Prefix(ref string message)
         {
-            ChatCommandsMain.modEntry.Logger.Log("Recieved message[" + ChatCommandsMain.enabled + "]: " + message);
             if (!ChatCommandsMain.enabled)
             {
                 return;
@@ -93,6 +92,7 @@ namespace Frogtown
 
             if (ParseUserAndMessage(message, out string user, out string text))
             {
+                ChatCommandsMain.modEntry.Logger.Log("Recieved command " + text + " from user " + user);
                 string[] pieces = text.Split(' ');
 
                 if (pieces[0].ToUpper() == "CHAR" && pieces.Length > 1)
@@ -102,9 +102,6 @@ namespace Frogtown
                     {
                         prefabIndex = BodyCatalog.FindBodyIndexCaseInsensitive(pieces[1]);
                     }
-
-                    ChatCommandsMain.SendChat("Prefab index: " + prefabIndex);
-
                     if (prefabIndex != -1)
                     {
                         GameObject prefab = BodyCatalog.GetBodyPrefab(prefabIndex);
