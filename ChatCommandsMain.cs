@@ -22,6 +22,19 @@ namespace Frogtown
             enabled = true;
             return true;
         }
+
+        public static void SendChat(string message)
+        {
+            Chat.SendBroadcastChat(new Chat.PlayerChatMessage()
+            {
+                networkPlayerName = new NetworkPlayerName()
+                {
+                    steamId = new CSteamID(1234),
+                    nameOverride = "user"
+                },
+                baseToken = message
+            });
+        }
         
         static bool OnToggle(UnityModManager.ModEntry modEntry, bool value)
         {
@@ -29,40 +42,37 @@ namespace Frogtown
             return true;
         }
 
-        public static void ChangePrefab(string playerName, string prefabName)
+        public static PlayerCharacterMasterController GetPlayerWithName(string playerName)
         {
             PlayerCharacterMasterController[] allPlayers = MonoBehaviour.FindObjectsOfType<PlayerCharacterMasterController>();
-            PlayerCharacterMasterController found = null;
             foreach (PlayerCharacterMasterController player in allPlayers)
             {
                 if (player.networkUser.GetNetworkPlayerName().GetResolvedName() == playerName)
                 {
-                    found = player;
+                    return player;
                 }
             }
 
-            if (found != null)
+            return null;
+        }
+
+        public static void ChangePrefab(string playerName, GameObject prefab)
+        {
+            if (prefab != null)
             {
-                var prefab = BodyCatalog.FindBodyPrefab(prefabName);
-                if (prefab != null)
+                PlayerCharacterMasterController player = GetPlayerWithName(playerName);
+
+                if (player != null)
                 {
-                    var oldTransform = found.master.transform.position;
-                    var oldRotation = found.master.transform.rotation;
-                    found.master.DestroyBody();
-                    found.master.bodyPrefab = prefab;
-                    found.master.SpawnBody(prefab, oldTransform, oldRotation);
+                    var oldTransform = player.master.transform.position;
+                    var oldRotation = player.master.transform.rotation;
+                    player.master.DestroyBody();
+                    player.master.bodyPrefab = prefab;
+                    player.master.SpawnBody(prefab, oldTransform, oldRotation); //transform and rotation don't work? please fix?
                 }
                 else
                 {
-                    Chat.SendBroadcastChat(new Chat.PlayerChatMessage()
-                    {
-                        networkPlayerName = new NetworkPlayerName()
-                        {
-                            steamId = new CSteamID(1234),
-                            nameOverride = "user"
-                        },
-                        baseToken = prefabName + " not found"
-                    });
+                    SendChat("Player " + player + " not found");
                 }
             }
         }
@@ -73,7 +83,6 @@ namespace Frogtown
     [HarmonyPatch(new Type[] { typeof(string) })]
     class ChatPatch
     {
-
         static void Prefix(ref string message)
         {
             ChatCommandsMain.modEntry.Logger.Log("Recieved message[" + ChatCommandsMain.enabled + "]: " + message);
@@ -81,40 +90,55 @@ namespace Frogtown
             {
                 return;
             }
-            string backmessage = message;
-            int ix = message.IndexOf("<noparse>/");
-            if (ix >= 0)
-            {
-                string user = message.Substring("<color=#123456><noparse>".Length, ix - "</noparse>:0123456789012345678901234".Length);
-                message = message.Substring(ix + "<noparse>/".Length);
-                message = message.Substring(0, message.IndexOf("</noparse>"));
 
-                string[] pieces = message.Split(' ');
+            if (ParseUserAndMessage(message, out string user, out string text))
+            {
+                string[] pieces = text.Split(' ');
 
                 if (pieces[0].ToUpper() == "CHAR" && pieces.Length > 1)
                 {
-                    ChatCommandsMain.ChangePrefab(user, pieces[1]);
-                }
-                else if (pieces[0].ToUpper() == "BODIES")
-                {
-                    message = "Bodies: ";
-                    message += string.Join(",", Resources.LoadAll<GameObject>("Prefabs/CharacterBodies/").Select(obj => obj.name));
-                }
-                else
-                {
-                    message = "\"" + user + "\" \"" + pieces[0] + "\"";
-                    Chat.SendBroadcastChat(new Chat.PlayerChatMessage()
+                    int prefabIndex = -1;
+                    if (!Int32.TryParse(pieces[1], out prefabIndex))
                     {
-                        networkPlayerName = new NetworkPlayerName()
+                        prefabIndex = BodyCatalog.FindBodyIndexCaseInsensitive(pieces[1]);
+                    }
+
+                    ChatCommandsMain.SendChat("Prefab index: " + prefabIndex);
+
+                    if (prefabIndex != -1)
+                    {
+                        GameObject prefab = BodyCatalog.GetBodyPrefab(prefabIndex);
+                        
+                        if(prefab != null)
                         {
-                            steamId = new CSteamID(1234),
-                            nameOverride = "user"
-                        },
-                        baseToken = "\"" + user + "\" said \"" + pieces[0] + "\""
-                    });
+                            ChatCommandsMain.ChangePrefab(user, prefab);
+                            ChatCommandsMain.SendChat(user + " morphed into " + prefab.name);
+                        }
+                        else
+                        {
+                            ChatCommandsMain.SendChat("Prefab not found");
+                        }
+                    }
                 }
             }
-            message = backmessage;
+        }
+
+        public static bool ParseUserAndMessage(string input, out string user, out string message)
+        {
+            user = "";
+            message = "";
+            int ix = input.IndexOf("<noparse>/");
+            if (ix >= 0)
+            {
+                int start = "<color=#123456><noparse>".Length;
+                int len = ix - "</noparse>:0123456789012345678901234".Length; // lol
+                user = input.Substring(start, len);
+                message = input.Substring(ix + "<noparse>/".Length);
+                message = message.Substring(0, message.IndexOf("</noparse>"));
+                return true;
+            }
+
+            return false;
         }
     }
 }
