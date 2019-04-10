@@ -41,7 +41,7 @@ namespace Frogtown
             {
                 Int32.TryParse(pieces[1], out index);
             }
-            if (index <= 0 || index >= (int)ItemIndex.Count)
+            if (index < 0 || index >= (int)ItemIndex.Count)
             {
                 index = (int)ItemIndex.SprintOutOfCombat;
             }
