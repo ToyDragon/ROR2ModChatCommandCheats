@@ -15,6 +15,7 @@ namespace Frogtown
             ChatCommandCheatsMain.modEntry = modEntry;
             modEntry.OnToggle = OnToggle;
             FrogtownShared.AddChatCommand("char", OnCharCommand);
+            FrogtownShared.AddChatCommand("give", OnGiveCommand);
             enabled = true;
             return true;
         }
@@ -26,6 +27,40 @@ namespace Frogtown
             return true;
         }
 
+        private static bool OnGiveCommand(string userName, string[] pieces)
+        {
+            if (!enabled)
+            {
+                return false;
+            }
+
+            var player = FrogtownShared.GetPlayerWithName(userName);
+            int index = 0, count = 0;
+
+            if (pieces.Length >= 2)
+            {
+                Int32.TryParse(pieces[1], out index);
+            }
+            if (index <= 0 || index >= (int)ItemIndex.Count)
+            {
+                index = (int)ItemIndex.SprintOutOfCombat;
+            }
+
+            if (pieces.Length >= 3)
+            {
+                Int32.TryParse(pieces[2], out count);
+            }
+            if(count == 0)
+            {
+                count = 1;
+            }
+
+            player.master.inventory.GiveItem((ItemIndex)index, count);
+            FrogtownShared.SendChat("Gave " + userName + " " + count + " " + ((ItemIndex)index).ToString());
+
+            return true;
+        }
+
         private static bool OnCharCommand(string userName, string[] pieces)
         {
             if (!enabled)
@@ -33,31 +68,35 @@ namespace Frogtown
                 return false;
             }
 
-            int prefabIndex = -1;
-            if (!Int32.TryParse(pieces[1], out prefabIndex))
+            if(pieces.Length >= 2)
             {
-                prefabIndex = BodyCatalog.FindBodyIndexCaseInsensitive(pieces[1]);
-            }
-            if (prefabIndex != -1)
-            {
-                GameObject prefab = BodyCatalog.GetBodyPrefab(prefabIndex);
-
-                if (prefab != null)
+                int prefabIndex = -1;
+                if (!Int32.TryParse(pieces[1], out prefabIndex))
                 {
-                    if(FrogtownShared.ChangePrefab(userName, prefab))
+                    prefabIndex = BodyCatalog.FindBodyIndexCaseInsensitive(pieces[1]);
+                }
+                if (prefabIndex != -1)
+                {
+                    GameObject prefab = BodyCatalog.GetBodyPrefab(prefabIndex);
+
+                    if (prefab != null)
                     {
-                        FrogtownShared.SendChat(userName + " morphed into " + prefab.name);
+                        if (FrogtownShared.ChangePrefab(userName, prefab))
+                        {
+                            FrogtownShared.SendChat(userName + " morphed into " + prefab.name);
+                        }
+                        else
+                        {
+                            FrogtownShared.SendChat(userName + " couldn't morph into " + prefab.name);
+                        }
                     }
                     else
                     {
-                        FrogtownShared.SendChat(userName + " couldn't morph into " + prefab.name);
+                        FrogtownShared.SendChat("Prefab not found");
                     }
                 }
-                else
-                {
-                    FrogtownShared.SendChat("Prefab not found");
-                }
             }
+
             return true;
         }
     }
