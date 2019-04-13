@@ -1,35 +1,29 @@
-﻿using RoR2;
+﻿using BepInEx;
+using RoR2;
 using System;
 using UnityEngine;
-using UnityModManagerNet;
 
 namespace Frogtown
 {
-    public class ChatCommandCheatsMain
+    [BepInDependency("com.frogtown.shared")]
+    [BepInPlugin("com.frogtown.chatcheats", "Cheat Chat Commands", "1.0")]
+    public class ChatCommandCheatsMain : BaseUnityPlugin
     {
-        public static bool enabled;
-        public static UnityModManager.ModEntry modEntry;
+        public ModDetails modDetails;
 
-        static bool Load(UnityModManager.ModEntry modEntry)
+        public void Awake()
         {
-            ChatCommandCheatsMain.modEntry = modEntry;
-            modEntry.OnToggle = OnToggle;
-            FrogtownShared.AddChatCommand("char", OnCharCommand);
-            FrogtownShared.AddChatCommand("give", OnGiveCommand);
-            enabled = true;
-            return true;
-        }
-        
-        static bool OnToggle(UnityModManager.ModEntry modEntry, bool value)
-        {
-            enabled = value;
-            FrogtownShared.ModToggled(value);
-            return true;
+            modDetails = new ModDetails("com.frogtown.chatcheats");
+
+            FrogtownShared.AddChatCommand("change_char", OnCharCommand);
+            FrogtownShared.AddChatCommand("give_item", OnGiveCommand);
+            FrogtownShared.AddChatCommand("remove_item", OnRemoveCommand);
+            FrogtownShared.AddChatCommand("clear_items", OnClearItemsCommand);
         }
 
-        private static bool OnGiveCommand(string userName, string[] pieces)
+        private bool OnRemoveCommand(string userName, string[] pieces)
         {
-            if (!enabled)
+            if (!modDetails.enabled)
             {
                 return false;
             }
@@ -39,7 +33,80 @@ namespace Frogtown
 
             if (pieces.Length >= 2)
             {
-                Int32.TryParse(pieces[1], out index);
+                if (!Int32.TryParse(pieces[1], out index))
+                {
+                    if (Enum.TryParse(pieces[1], true, out ItemIndex result))
+                    {
+                        index = (int)result;
+                    }
+                    else
+                    {
+                        FrogtownShared.SendChat("\"" + pieces[1] + "\" not recognized.");
+                        return true;
+                    }
+                }
+            }
+
+            if (pieces.Length >= 3)
+            {
+                Int32.TryParse(pieces[2], out count);
+            }
+            int countPlayerHas = player.master.inventory.GetItemCount((ItemIndex)index);
+            count = Math.Min(Math.Max(count, 1), countPlayerHas);
+
+            if (count > 0)
+            {
+                player.master.inventory.GiveItem((ItemIndex)index, -count);
+                FrogtownShared.SendChat("Took " + count + " " + ((ItemIndex)index).ToString() + " from " + userName + ".");
+            }
+
+            return true;
+        }
+
+        private bool OnClearItemsCommand(string userName, string[] pieces)
+        {
+            if (!modDetails.enabled)
+            {
+                return false;
+            }
+
+            var player = FrogtownShared.GetPlayerWithName(userName);
+            foreach (ItemIndex itemIndex in ItemCatalog.allItems)
+            {
+                int count = player.master.inventory.GetItemCount(itemIndex);
+                if(count > 0)
+                {
+                    player.master.inventory.GiveItem(itemIndex, -count);
+                }
+            }
+            FrogtownShared.SendChat("Took all items from " + userName + ".");
+
+            return true;
+        }
+
+        private bool OnGiveCommand(string userName, string[] pieces)
+        {
+            if (!modDetails.enabled)
+            {
+                return false;
+            }
+
+            var player = FrogtownShared.GetPlayerWithName(userName);
+            int index = 0, count = 0;
+
+            if (pieces.Length >= 2)
+            {
+                if(!Int32.TryParse(pieces[1], out index))
+                {
+                    if(Enum.TryParse(pieces[1], true, out ItemIndex result)){
+                        index = (int)result;
+                    }
+                    else
+                    {
+                        FrogtownShared.SendChat("\"" + pieces[1] + "\" not recognized.");
+                        return true;
+                    }
+                }
             }
             if (index < 0 || index >= (int)ItemIndex.Count)
             {
@@ -61,14 +128,20 @@ namespace Frogtown
             return true;
         }
 
-        private static bool OnCharCommand(string userName, string[] pieces)
+        private bool OnTestCommand(string userName, string[] pieces)
         {
-            if (!enabled)
+            FrogtownShared.SendChat("User " + string.Join(",", pieces));
+            return true;
+        }
+
+        private bool OnCharCommand(string userName, string[] pieces)
+        {
+            if (!modDetails.enabled)
             {
                 return false;
             }
 
-            if(pieces.Length >= 2)
+            if (pieces.Length >= 2)
             {
                 int prefabIndex = -1;
                 if (!Int32.TryParse(pieces[1], out prefabIndex))
