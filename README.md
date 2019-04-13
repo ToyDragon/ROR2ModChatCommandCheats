@@ -1,16 +1,33 @@
 # Cheat Chat Commands
 This mod adds a few cheating chat commands.  
 
-/char <body name or index> - Switch to a different character. You can use the body name if you know it, such as "/char BanditBody", "/char EnforcerBody", "/char HANDBody", "/char HANDBody", "/char SniperBody", or "/char ElectricWormBody". Or you can use the body index such as "/char 9" for BeetleQueen2Body or "/char 33" for HaulerBody. If playing multiplayer the server host must have the mod installed, and it will work for all players in the match.  
+/change_char \<body name or index\>
+- Switch to a different character. You can use the body name if you know it, such as:
+  - /change_char BanditBody
+  - /change_char EnforcerBody
+  - /change_char HANDBody
+  - /change_char SniperBody
+  - /change_char ElectricWormBody
+- Or you can use the body index such as "/char 9" for BeetleQueen2Body or "/char 33" for HaulerBody. If playing multiplayer the server host must have the mod installed, and it will work for all players in the match.  
   
-/give [item number] [item count] - Give yourself some free items. For example "/give 5" will add a Ceremonial Dagger to your inventory, and "/give 21 100" will make you the fastest living thing on the planet.
+/give \<item number\> [item count]
+- Give yourself some free items. You can use the item name if you know it, such as:
+  - /give_item Syringe
+  - /give_item Dagger 5
+  - /give_item Hoof
+  - /give_item SprintOutOfCombat 10
+  - /give_item Clover 4
+- Or you can use the item index, for example "/give 5" will add a Ceremonial Dagger to your inventory, and "/give 21 100" will make you the fastest living thing on the planet.
 
 # Installation
-1. Install [Unity Mod Manager](https://www.nexusmods.com/site/mods/21/)
+1. Install [BepInEx Mod Pack](https://thunderstore.io/package/bbepis/BepInExPack/)
 2. Install [Frogtown Shared Mod Utility](https://github.com/ToyDragon/ROR2ModShared)
 3. Visit the [releases page](https://github.com/ToyDragon/ROR2ModChatCommandCheats/releases)
-4. Download the latest FrogtownChatCommandCheats.zip
-5. Unzip and move the FrogtownChatCommandCheats folder to your Mods folder
+4. Download the latest ChatCommandCheats.dll
+5. Move ChatCommandCheats.dll to your \BepInEx\plugins folder
+
+# Disabling/Enabling
+If you want to you can turn the mod off without uninstalling it. In game type `/disable_mod chatcheats` to turn it off, and `/enable_mod chatcheats` or `/enable_mod all` to turn it back on. It will be turned back on automatically when the game starts.
 
 ## Item Numbers
  0 Syringe  
@@ -158,4 +175,4 @@ VagrantBody
 WispBody  
 
 # Other Mods
-Check out the [Frogtown Shared Mod Utility](https://github.com/ToyDragon/ROR2ModShared) to see more Unity Mod Manager compatible mods.
+Check out the [Frogtown Shared Mod Utility](https://github.com/ToyDragon/ROR2ModShared) page to see more cool mods.
