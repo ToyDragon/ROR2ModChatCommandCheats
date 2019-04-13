@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Frogtown
 {
     [BepInDependency("com.frogtown.shared")]
-    [BepInPlugin("com.frogtown.chatcheats", "Cheat Chat Commands", "1.0")]
+    [BepInPlugin("com.frogtown.chatcheats", "Cheat Chat Commands", "1.0.2")]
     public class ChatCommandCheatsMain : BaseUnityPlugin
     {
         public ModDetails modDetails;
