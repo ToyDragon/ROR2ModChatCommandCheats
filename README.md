@@ -8,16 +8,22 @@ This mod adds a few cheating chat commands.
   - /change_char HANDBody
   - /change_char SniperBody
   - /change_char ElectricWormBody
-- Or you can use the body index such as "/char 9" for BeetleQueen2Body or "/char 33" for HaulerBody. If playing multiplayer the server host must have the mod installed, and it will work for all players in the match.  
+- Or you can use the body index such as "/change_char 9" for BeetleQueen2Body or "/change_char 33" for HaulerBody. If playing multiplayer the server host must have the mod installed, and it will work for all players in the match.  
   
-/give \<item number\> [item count]
+/give_item \<item number\> [item count]
 - Give yourself some free items. You can use the item name if you know it, such as:
   - /give_item Syringe
   - /give_item Dagger 5
   - /give_item Hoof
   - /give_item SprintOutOfCombat 10
   - /give_item Clover 4
-- Or you can use the item index, for example "/give 5" will add a Ceremonial Dagger to your inventory, and "/give 21 100" will make you the fastest living thing on the planet.
+- Or you can use the item index, for example "/give_item 5" will add a Ceremonial Dagger to your inventory, and "/give_item 21 100" will make you the fastest living thing on the planet.
+
+/remove_item \<item number\> [item count]
+- Same as give item, but instead it removes them.
+
+/clear_items
+- Removes all items from your inventory.
 
 # Installation
 1. Install [BepInEx Mod Pack](https://thunderstore.io/package/bbepis/BepInExPack/)
