@@ -6,14 +6,20 @@ using UnityEngine;
 namespace Frogtown
 {
     [BepInDependency("com.frogtown.shared")]
-    [BepInPlugin("com.frogtown.chatcheats", "Cheat Chat Commands", "1.0.2")]
+    [BepInPlugin("com.frogtown.chatcheats", "Cheat Chat Commands", "1.0.3")]
     public class ChatCommandCheatsMain : BaseUnityPlugin
     {
         public ModDetails modDetails;
 
         public void Awake()
         {
-            modDetails = new ModDetails("com.frogtown.chatcheats");
+            modDetails = new ModDetails("com.frogtown.chatcheats")
+            {
+                description = "Adds the /change_char and /give_item chat commands.",
+                githubAuthor = "ToyDragon",
+                githubRepo = "ROR2ModChatCommandCheats",
+            };
+            FrogtownShared.RegisterMod(modDetails);
 
             FrogtownShared.AddChatCommand("change_char", OnCharCommand);
             FrogtownShared.AddChatCommand("give_item", OnGiveCommand);
