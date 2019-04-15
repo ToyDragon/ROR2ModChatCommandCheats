@@ -6,14 +6,14 @@ using UnityEngine;
 namespace Frogtown
 {
     [BepInDependency("com.frogtown.shared")]
-    [BepInPlugin("com.frogtown.chatcheats", "Cheat Chat Commands", "1.0.3")]
+    [BepInPlugin("com.frogtown.chatcheats", "Cheat Chat Commands", "1.0.4")]
     public class ChatCommandCheatsMain : BaseUnityPlugin
     {
-        public ModDetails modDetails;
+        public FrogtownModDetails modDetails;
 
         public void Awake()
         {
-            modDetails = new ModDetails("com.frogtown.chatcheats")
+            modDetails = new FrogtownModDetails("com.frogtown.chatcheats")
             {
                 description = "Adds the /change_char and /give_item chat commands.",
                 githubAuthor = "ToyDragon",
