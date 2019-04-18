@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Frogtown
 {
     [BepInDependency("com.frogtown.shared")]
-    [BepInPlugin("com.frogtown.chatcheats", "Cheat Chat Commands", "1.0.5")]
+    [BepInPlugin("com.frogtown.chatcheats", "Cheat Chat Commands", "1.0.7")]
     public class ChatCommandCheatsMain : BaseUnityPlugin
     {
         public FrogtownModDetails modDetails;
@@ -51,7 +51,7 @@ namespace Frogtown
 
             includeNoTier = GUILayout.Toggle(includeNoTier, "Include unfinished items?");
 
-            itemScrollPos = GUILayout.BeginScrollView(itemScrollPos, GUILayout.ExpandHeight(false));
+            itemScrollPos = GUILayout.BeginScrollView(itemScrollPos, GUILayout.Height(90));
             GUILayout.BeginHorizontal();
             ItemDef selectedItem = null;
             foreach (var itemIndex in ItemCatalog.allItems)
@@ -118,7 +118,7 @@ namespace Frogtown
 
             includeNoIcon = GUILayout.Toggle(includeNoIcon, "Include no icon?");
 
-            bodyScrollPos = GUILayout.BeginScrollView(bodyScrollPos, GUILayout.ExpandHeight(false));
+            bodyScrollPos = GUILayout.BeginScrollView(bodyScrollPos, GUILayout.Height(90));
             GUILayout.BeginHorizontal();
             GameObject selectedPrefab = null;
             foreach (var prefab in BodyCatalog.allBodyPrefabs)
