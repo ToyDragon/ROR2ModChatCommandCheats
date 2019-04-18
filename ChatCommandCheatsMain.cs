@@ -78,25 +78,26 @@ namespace Frogtown
 
             if (selectedItem != null)
             {
-                GUILayout.BeginHorizontal();
                 var name = Language.GetString(selectedItem.nameToken);
+                GUILayout.Label(name);
+                GUILayout.BeginHorizontal();
                 foreach (var player in PlayerCharacterMasterController.instances)
                 {
                     GUILayout.BeginVertical();
                     var pname = player.GetDisplayName();
-                    if (GUILayout.Button("Give 1x " + name + " to " + pname, buttonStyle))
+                    if (GUILayout.Button("Give 1x to " + pname, buttonStyle))
                     {
                         player.master.inventory.GiveItem(selectedIndex, 1);
                     }
-                    if (GUILayout.Button("Give 5x " + name + " to " + pname, buttonStyle))
+                    if (GUILayout.Button("Give 5x to " + pname, buttonStyle))
                     {
                         player.master.inventory.GiveItem(selectedIndex, 5);
                     }
-                    if (GUILayout.Button("Give 25x " + name + " to " + pname, buttonStyle))
+                    if (GUILayout.Button("Give 25x to " + pname, buttonStyle))
                     {
                         player.master.inventory.GiveItem(selectedIndex, 25);
                     }
-                    if (GUILayout.Button("Remove all " + name + " from " + pname, buttonStyle))
+                    if (GUILayout.Button("Remove all from " + pname, buttonStyle))
                     {
                         player.master.inventory.GiveItem(selectedIndex, -player.master.inventory.GetItemCount(selectedIndex));
                     }
