@@ -1,9 +1,9 @@
 # Frogtown Cheats
 This mod adds a few cheats to the settings page that the host can access, and adds chat commands for other players to use.
 
-![In game popup](https://github.com/ToyDragon/ROR2ModChatCommandCheats/blob/master/Images/UI.png)
+![In game popup](https://github.com/ToyDragon/ROR2ModChatCommandCheats/blob/master/Images/UI.png?raw=true)
 
-![Close up](https://github.com/ToyDragon/ROR2ModChatCommandCheats/blob/master/Images/closeup.png)
+![Close up](https://github.com/ToyDragon/ROR2ModChatCommandCheats/blob/master/Images/closeup.png?raw=true)
 
 # Installation
 1. Install [BepInEx Mod Pack](https://thunderstore.io/package/bbepis/BepInExPack/)
