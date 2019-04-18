@@ -1,5 +1,20 @@
-# Cheat Chat Commands
-This mod adds a few cheating chat commands.  
+# Frogtown Cheats
+This mod adds a few cheats to the settings page that the host can access, and adds chat commands for other players to use.
+
+![In game popup](https://github.com/ToyDragon/ROR2ModChatCommandCheats/blob/master/Images/UI.png)
+
+![Close up](https://github.com/ToyDragon/ROR2ModChatCommandCheats/blob/master/Images/closeup.png)
+
+# Installation
+1. Install [BepInEx Mod Pack](https://thunderstore.io/package/bbepis/BepInExPack/)
+2. Install [Frogtown Shared Mod Utility](https://github.com/ToyDragon/ROR2ModShared)
+3. Visit the [releases page](https://github.com/ToyDragon/ROR2ModChatCommandCheats/releases)
+4. Download the latest ChatCommandCheats.dll
+5. Move ChatCommandCheats.dll to your \BepInEx\plugins folder
+
+## Chat Commands
+
+Other players in the game can use these chat commands to give themselves items, or switch characters.
 
 /change_char \<body name or index\>
 - Switch to a different character. You can use the body name if you know it, such as:
@@ -24,16 +39,6 @@ This mod adds a few cheating chat commands.
 
 /clear_items
 - Removes all items from your inventory.
-
-# Installation
-1. Install [BepInEx Mod Pack](https://thunderstore.io/package/bbepis/BepInExPack/)
-2. Install [Frogtown Shared Mod Utility](https://github.com/ToyDragon/ROR2ModShared)
-3. Visit the [releases page](https://github.com/ToyDragon/ROR2ModChatCommandCheats/releases)
-4. Download the latest ChatCommandCheats.dll
-5. Move ChatCommandCheats.dll to your \BepInEx\plugins folder
-
-# Disabling/Enabling
-If you want to you can turn the mod off without uninstalling it. In game type `/disable_mod chatcheats` to turn it off, and `/enable_mod chatcheats` or `/enable_mod all` to turn it back on. It will be turned back on automatically when the game starts.
 
 ## Item Numbers
  0 Syringe  
