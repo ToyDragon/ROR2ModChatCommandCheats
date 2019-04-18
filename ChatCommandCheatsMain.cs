@@ -11,6 +11,15 @@ namespace Frogtown
     {
         public FrogtownModDetails modDetails;
 
+        private GUIStyle buttonStyle;
+        private bool guiInit;
+        private Vector2 itemScrollPos;
+        private ItemIndex selectedIndex;
+        private bool includeNoTier;
+        private string selectedBodyName;
+        private Vector2 bodyScrollPos;
+        private bool includeNoIcon;
+
         public void Awake()
         {
             modDetails = new FrogtownModDetails("com.frogtown.chatcheats")
@@ -18,6 +27,7 @@ namespace Frogtown
                 description = "Adds the /change_char and /give_item chat commands.",
                 githubAuthor = "ToyDragon",
                 githubRepo = "ROR2ModChatCommandCheats",
+                OnGUI = OnSettingsGUI
             };
             FrogtownShared.RegisterMod(modDetails);
 
@@ -25,6 +35,158 @@ namespace Frogtown
             FrogtownShared.AddChatCommand("give_item", OnGiveCommand);
             FrogtownShared.AddChatCommand("remove_item", OnRemoveCommand);
             FrogtownShared.AddChatCommand("clear_items", OnClearItemsCommand);
+        }
+
+        private void OnSettingsGUI()
+        {
+            if (!guiInit)
+            {
+                guiInit = true;
+
+                buttonStyle = new GUIStyle(GUI.skin.button);
+                buttonStyle.padding = new RectOffset(0, 0, 0, 0);
+            }
+
+            GUILayout.Label("Item Cheats");
+
+            includeNoTier = GUILayout.Toggle(includeNoTier, "Include unfinished items?");
+
+            itemScrollPos = GUILayout.BeginScrollView(itemScrollPos, GUILayout.ExpandHeight(false));
+            GUILayout.BeginHorizontal();
+            ItemDef selectedItem = null;
+            foreach (var itemIndex in ItemCatalog.allItems)
+            {
+                var itemDef = ItemCatalog.GetItemDef(itemIndex);
+                if (!includeNoTier && itemDef.tier == ItemTier.NoTier)
+                {
+                    continue;
+                }
+
+                var name = Language.GetString(itemDef.nameToken);
+                if (GUILayout.Toggle(selectedIndex == itemDef.itemIndex, new GUIContent(itemDef.pickupIconTexture, name), buttonStyle, GUILayout.Width(64), GUILayout.Height(64)))
+                {
+                    selectedIndex = itemDef.itemIndex;
+                }
+
+                if(selectedIndex == itemDef.itemIndex)
+                {
+                    selectedItem = itemDef;
+                }
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.EndScrollView();
+
+            if (selectedItem != null)
+            {
+                GUILayout.BeginHorizontal();
+                var name = Language.GetString(selectedItem.nameToken);
+                foreach (var player in PlayerCharacterMasterController.instances)
+                {
+                    GUILayout.BeginVertical();
+                    var pname = player.GetDisplayName();
+                    if (GUILayout.Button("Give 1x " + name + " to " + pname, buttonStyle))
+                    {
+                        player.master.inventory.GiveItem(selectedIndex, 1);
+                    }
+                    if (GUILayout.Button("Give 5x " + name + " to " + pname, buttonStyle))
+                    {
+                        player.master.inventory.GiveItem(selectedIndex, 5);
+                    }
+                    if (GUILayout.Button("Give 25x " + name + " to " + pname, buttonStyle))
+                    {
+                        player.master.inventory.GiveItem(selectedIndex, 25);
+                    }
+                    if (GUILayout.Button("Remove all " + name + " from " + pname, buttonStyle))
+                    {
+                        player.master.inventory.GiveItem(selectedIndex, -player.master.inventory.GetItemCount(selectedIndex));
+                    }
+                    GUILayout.Space(20);
+                    if (GUILayout.Button("Remove every item from " + pname, buttonStyle))
+                    {
+                        foreach (var itemIndex in ItemCatalog.allItems)
+                        {
+                            player.master.inventory.GiveItem(itemIndex, -player.master.inventory.GetItemCount(itemIndex));
+                        }
+                    }
+                    GUILayout.EndVertical();
+                }
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.Label("Character Cheats");
+
+            includeNoIcon = GUILayout.Toggle(includeNoIcon, "Include no icon?");
+
+            bodyScrollPos = GUILayout.BeginScrollView(bodyScrollPos, GUILayout.ExpandHeight(false));
+            GUILayout.BeginHorizontal();
+            GameObject selectedPrefab = null;
+            foreach (var prefab in BodyCatalog.allBodyPrefabs)
+            {
+                var bodyComp = prefab.GetComponent<CharacterBody>();
+
+                name = "";
+                if (bodyComp != null)
+                {
+                    name = bodyComp.GetDisplayName();
+                }
+                if (name.Length == 0)
+                {
+                    name = prefab.name;
+                }
+
+                if (!includeNoIcon && bodyComp?.portraitIcon == null)
+                {
+                    continue;
+                }
+                if (GUILayout.Toggle(selectedBodyName == prefab.name, new GUIContent(bodyComp.portraitIcon, name), buttonStyle, GUILayout.Width(64), GUILayout.Height(64)))
+                {
+                    selectedBodyName = prefab.name;
+                }
+
+                if(selectedBodyName == prefab.name)
+                {
+                    selectedPrefab = prefab;
+                }
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.EndScrollView();
+
+            if (selectedPrefab != null)
+            {
+                GUILayout.BeginHorizontal();
+                var bodyComp = selectedPrefab.GetComponent<CharacterBody>();
+
+                name = "";
+                if (bodyComp != null)
+                {
+                    name = bodyComp.GetDisplayName();
+                }
+                if(name.Length == 0)
+                {
+                    name = selectedPrefab.name;
+                }
+
+                foreach (var player in PlayerCharacterMasterController.instances)
+                {
+                    var pname = player.GetDisplayName();
+                    if (GUILayout.Button("Respawn " + pname + " as " + name, buttonStyle))
+                    {
+                        var pbody = player.master.GetBodyObject();
+                        if (pbody != null && pbody.transform != null)
+                        {
+                            var oldPos = pbody.transform.position;
+                            var oldRot = pbody.transform.rotation;
+                            player.master.DestroyBody();
+                            player.master.bodyPrefab = selectedPrefab;
+                            player.master.SpawnBody(selectedPrefab, oldPos, oldRot);
+                            pbody.transform.position = oldPos;
+                            pbody.transform.rotation = oldRot;
+                        }
+                    }
+                }
+                GUILayout.EndHorizontal();
+            }
+
         }
 
         private bool OnRemoveCommand(string userName, string[] pieces)
