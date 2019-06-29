@@ -1,12 +1,14 @@
 ﻿using BepInEx;
 using RoR2;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Frogtown
 {
     [BepInDependency("com.frogtown.shared")]
-    [BepInPlugin("com.frogtown.chatcheats", "Cheat Chat Commands", "1.0.7")]
+    [BepInPlugin("com.frogtown.chatcheats", "Cheat Chat Commands", "1.0.8")]
     public class ChatCommandCheatsMain : BaseUnityPlugin
     {
         public FrogtownModDetails modDetails;
@@ -19,6 +21,7 @@ namespace Frogtown
         private string selectedBodyName;
         private Vector2 bodyScrollPos;
         private bool includeNoIcon;
+        private List<ItemIndex> itemsByTier;
 
         public void Awake()
         {
@@ -26,7 +29,8 @@ namespace Frogtown
             {
                 description = "Adds the /change_char and /give_item chat commands.",
                 githubAuthor = "ToyDragon",
-                githubRepo = "ROR2ModChatCommandCheats",
+                githubRepo = "ROR2ModChatCommandCheats", 
+                thunderstoreFullName = "ToyDragon-CheatingChatCommands",
                 OnGUI = OnSettingsGUI
             };
             FrogtownShared.RegisterMod(modDetails);
@@ -35,6 +39,18 @@ namespace Frogtown
             FrogtownShared.AddChatCommand("give_item", OnGiveCommand);
             FrogtownShared.AddChatCommand("remove_item", OnRemoveCommand);
             FrogtownShared.AddChatCommand("clear_items", OnClearItemsCommand);
+
+            itemsByTier = new List<ItemIndex>();
+            foreach(var itemIndex in ItemCatalog.allItems)
+            {
+                itemsByTier.Add(itemIndex);
+            }
+            itemsByTier.Sort((a, b) =>
+            {
+                var definitionA = ItemCatalog.GetItemDef(a);
+                var definitionB = ItemCatalog.GetItemDef(b);
+                return definitionA.tier.CompareTo(definitionB.tier);
+            });
         }
 
         private void OnSettingsGUI()
@@ -47,6 +63,11 @@ namespace Frogtown
                 buttonStyle.padding = new RectOffset(0, 0, 0, 0);
             }
 
+            if (!NetworkServer.active || !enabled || Stage.instance == null )
+            {
+                return;
+            }
+
             GUILayout.Label("Item Cheats");
 
             includeNoTier = GUILayout.Toggle(includeNoTier, "Include unfinished items?");
@@ -54,7 +75,7 @@ namespace Frogtown
             itemScrollPos = GUILayout.BeginScrollView(itemScrollPos, GUILayout.Height(90));
             GUILayout.BeginHorizontal();
             ItemDef selectedItem = null;
-            foreach (var itemIndex in ItemCatalog.allItems)
+            foreach (var itemIndex in itemsByTier)
             {
                 var itemDef = ItemCatalog.GetItemDef(itemIndex);
                 if (!includeNoTier && itemDef.tier == ItemTier.NoTier)
@@ -63,7 +84,15 @@ namespace Frogtown
                 }
 
                 var name = Language.GetString(itemDef.nameToken);
-                if (GUILayout.Toggle(selectedIndex == itemDef.itemIndex, new GUIContent(itemDef.pickupIconTexture, name), buttonStyle, GUILayout.Width(64), GUILayout.Height(64)))
+                bool isSelected = selectedIndex == itemDef.itemIndex;
+                var oldColor = GUI.backgroundColor;
+                if (isSelected)
+                {
+                    GUI.backgroundColor = Color.red;
+                }
+                bool selectThisItem = GUILayout.Toggle(isSelected, new GUIContent(itemDef.pickupIconTexture, name), buttonStyle, GUILayout.Width(64), GUILayout.Height(64));
+                GUI.backgroundColor = oldColor;
+                if (selectThisItem)
                 {
                     selectedIndex = itemDef.itemIndex;
                 }
@@ -139,7 +168,15 @@ namespace Frogtown
                 {
                     continue;
                 }
-                if (GUILayout.Toggle(selectedBodyName == prefab.name, new GUIContent(bodyComp.portraitIcon, name), buttonStyle, GUILayout.Width(64), GUILayout.Height(64)))
+                bool isSelected = selectedBodyName == prefab.name;
+                var oldColor = GUI.backgroundColor;
+                if (isSelected)
+                {
+                    GUI.backgroundColor = Color.red;
+                }
+                bool selectThisItem = GUILayout.Toggle(isSelected, new GUIContent(bodyComp.portraitIcon, name), buttonStyle, GUILayout.Width(64), GUILayout.Height(64));
+                GUI.backgroundColor = oldColor;
+                if (selectThisItem)
                 {
                     selectedBodyName = prefab.name;
                 }
